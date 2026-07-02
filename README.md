@@ -41,6 +41,8 @@ You give Claude a Markdown file like:
 | Dashboard PDF export | Export the KPI dashboard as PDF | todo |
 ```
 
+**No table yet? A raw list works too.** Paste a plain bullet list of features (or point to a notes file) and the skill builds the `FEATURES.md` table for you — splitting items that bundle several deliverables, merging duplicates — shows you the result for approval, then continues with the normal pipeline.
+
 The skill then runs through 4 phases, in this strict order:
 
 1. **Clarification** — Claude walks through every `todo` row and asks you targeted questions (scope, edge cases, dependencies, definition of "done"). Answers are written directly into the file, in a `Clarifications` column. **No code is written during this phase.**
@@ -96,9 +98,11 @@ The `SKILL.md` must sit **directly** inside the copied folder (`~/.claude/skills
 
 ## Usage
 
-### 1. Prepare your table
+### 1. Prepare your table — or just a list
 
 Create a Markdown file (e.g. `FEATURES.md`) at the root of your project with at least the columns `Feature`, `Description`, `Status`. The skill enriches the file itself with the `Clarifications`, `Branch`, `PR` columns if they don't exist yet.
+
+No table? Paste a raw bullet list of features in the chat (or point to a notes file) — the skill converts it into `FEATURES.md`, shows you the proposed table for approval, then moves on.
 
 ### 2. Start the clarification
 
@@ -175,6 +179,8 @@ Tu donnes à Claude un fichier Markdown du genre :
 | Export PDF du dashboard | Export du KPI dashboard en PDF | à faire |
 ```
 
+**Pas encore de tableau ? Une simple liste suffit.** Colle une liste à puces de fonctionnalités (ou pointe vers un fichier de notes) : le skill construit le tableau `FEATURES.md` pour toi — en découpant les items trop gros, en fusionnant les doublons — te montre le résultat pour validation, puis enchaîne sur le pipeline normal.
+
 Le skill se déroule ensuite en 4 phases, dans cet ordre strict :
 
 1. **Clarification** — Claude parcourt chaque ligne `à faire` et te pose des questions ciblées (scope, cas limites, dépendances, critère de "c'est fini"). Les réponses sont écrites directement dans le fichier, dans une colonne `Clarifications`. **Aucune ligne de code n'est écrite pendant cette phase.**
@@ -207,7 +213,7 @@ Recommandé mais optionnel : installe aussi [Superpowers](https://github.com/obr
 
 ## Utilisation
 
-1. Crée un fichier `FEATURES.md` avec au minimum les colonnes `Feature`, `Description`, `Statut`.
+1. Crée un fichier `FEATURES.md` avec au minimum les colonnes `Feature`, `Description`, `Statut` — ou colle simplement une liste à puces, le skill construira le tableau pour toi.
 2. Dans Claude Code, dis simplement : *« Voici mon tableau de features dans FEATURES.md, peux-tu clarifier chaque ligne avec moi puis les développer une par une ? »*
 3. Réponds aux questions de clarification.
 4. Donne le feu vert ("go", "vas-y"...).

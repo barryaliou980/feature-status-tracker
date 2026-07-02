@@ -1,8 +1,8 @@
 {
   "name": "feature-status-tracker",
   "displayName": "Feature Status Tracker",
-  "description": "Turns a Markdown feature table into an autonomous dev pipeline: clarify each feature, then develop one branch + one PR per feature until the table is done. Works with English or French tables.",
-  "version": "1.0.0",
+  "description": "Turns a Markdown feature table — or a raw feature list — into an autonomous dev pipeline: clarify each feature, then develop one branch + one PR per feature until the table is done. Works in English or French.",
+  "version": "1.1.0",
   "author": {
     "name": "Aliou Barry"
   },

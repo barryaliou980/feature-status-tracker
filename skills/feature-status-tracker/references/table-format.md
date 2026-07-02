@@ -1,5 +1,35 @@
 # Feature table format
 
+## From a raw list to the table (Phase 0.5 intake)
+
+When the input is a raw list (bullets in chat, notes file) instead of a table, convert it with these rules, then get the user's explicit OK before writing the file:
+
+- **One feature = one deliverable unit.** An item that bundles several deliverables is split into several rows.
+- **Merge duplicates and overlapping items** into a single row.
+- **Write a one-line description** for each feature; reuse the user's own wording when it is already clear.
+- **Keep the user's language** (English or French) for feature names, descriptions and statuses.
+- Every row starts as `todo`; the `Clarifications`, `Branch`, `PR` columns are added empty.
+
+### Example
+
+Raw input:
+
+```
+- oauth login (google + github)
+- export the dashboard as pdf and csv
+- pdf export of the dashboard
+- make search faster
+```
+
+Proposed table (announce: "merged the two PDF export items, split PDF/CSV export into 2 features"):
+
+| Feature | Description | Status | Clarifications | Branch | PR |
+|---|---|---|---|---|---|
+| OAuth login | Sign in with Google and GitHub | todo | | | |
+| Dashboard PDF export | Export the dashboard as PDF | todo | | | |
+| Dashboard CSV export | Export the dashboard as CSV | todo | | | |
+| Faster search | Improve search performance | todo | | | |
+
 ## Minimal columns expected as input
 
 | Feature | Description | Status |

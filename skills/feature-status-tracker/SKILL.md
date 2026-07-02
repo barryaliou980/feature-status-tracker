@@ -2,25 +2,27 @@
 name: feature-status-tracker
 description: >
   Use when the user provides or references a Markdown table of features to build
-  (| Feature | Description | Status | columns), mentions a feature backlog, a
-  roadmap to implement, "feature status", or asks to clarify features and then
-  develop them autonomously one by one. Works with English or French tables
-  (Status/Statut, todo/à faire). Triggers even without the word "skill" —
-  pasting a feature table with a status column is enough.
+  (| Feature | Description | Status | columns), a raw list of features to develop
+  (bullet points pasted in chat, or a notes/spec file) with no table yet, mentions
+  a feature backlog, a roadmap to implement, "feature status", or asks to clarify
+  features and then develop them autonomously one by one. Works in English or
+  French (Status/Statut, todo/à faire). Triggers even without the word "skill" —
+  pasting a feature table or a plain feature list is enough.
 ---
 
 # Feature Status Tracker
 
-End-to-end pilot: feature table → clarification → autonomous development branch by branch, relying on Superpowers skills for each technical step.
+End-to-end pilot: feature table (or raw feature list) → clarification → autonomous development branch by branch, relying on Superpowers skills for each technical step.
 
 ## Workflow overview
 
 ```
-Phase 0: Prerequisites check (Superpowers, clean git repo)
-Phase 1: Table parsing + Clarification (interactive, feature by feature)
-Phase 2: Confirmation gate (explicit "GO" from the user)
-Phase 3: Autonomous loop (1 feature = 1 branch = 1 PR = 1 row marked "done")
-Phase 4: Final report
+Phase 0:   Prerequisites check (Superpowers, clean git repo)
+Phase 0.5: Intake — only if no table exists yet: raw list → proposed table → user OK → FEATURES.md
+Phase 1:   Table parsing + Clarification (interactive, feature by feature)
+Phase 2:   Confirmation gate (explicit "GO" from the user)
+Phase 3:   Autonomous loop (1 feature = 1 branch = 1 PR = 1 row marked "done")
+Phase 4:   Final report
 ```
 
 **Golden rule: never start coding until ALL features are clarified.** Clarification and development are two strictly separate phases.
@@ -33,7 +35,24 @@ Phase 4: Final report
 2. Check for Superpowers: look for `.claude/plugins` or a skills directory containing `using-git-worktrees`, `test-driven-development`, `requesting-code-review`, `finishing-a-development-branch` (via the available skill discovery mechanism, or `find` on `~/.claude`).
    - **If Superpowers is present**: this skill explicitly delegates to those Superpowers skills during Phase 3 (see `references/superpowers-integration.md`). Do not reimplement TDD or worktree management logic in parallel — invoke the corresponding Superpowers skill.
    - **If Superpowers is absent**: mention it once to the user ("Superpowers is not detected, I'll use an equivalent manual git/TDD workflow") then continue with the fallback described in `references/superpowers-integration.md`. Do not block the workflow because of it.
-3. Identify or ask for the path of the table file (e.g. `FEATURES.md`, `roadmap.md`) if it wasn't already provided in the conversation.
+3. Identify the input: the path of the table file (e.g. `FEATURES.md`, `roadmap.md`), a table pasted in the conversation, or — if no table exists yet — a raw feature list (Phase 0.5). Ask only if none of these was provided.
+
+## Phase 0.5 — Intake: build the table from a raw list
+
+**Routing rule: this phase runs only when no feature table exists yet** — neither in a file nor pasted in the conversation. If a table already exists (including inside a notes file), skip straight to Phase 1.
+
+When the user provides a raw list of features — bullet points pasted in chat, or a notes/spec file to read:
+
+1. **Collect** the raw input (read the file if one was pointed to).
+2. **Restructure lightly**, following the rules in `references/table-format.md` (section "From a raw list to the table"): one feature = one deliverable unit (split items that bundle several), merge duplicates and overlaps, write a one-line description per feature. Keep the user's language (English or French) and their wording when it is already clear. Every row starts as `todo`.
+3. **Show the proposed table in the chat — do not write any file yet** — and list explicitly what you changed ("split X into 2 features", "merged Y and Z"). If parts of the input were prose with no actionable item, say what you left out.
+4. **Wait for explicit validation** or corrections. This is a gate, exactly like Phase 2: never write the file without the user's OK on the proposed table.
+5. **Write the file** once validated — `FEATURES.md` at the repository root by default; only ask for a name/location if the default is ambiguous (e.g. a `FEATURES.md` already exists for something else). Then continue directly to Phase 1 without stopping.
+
+Edge cases:
+- Empty or single-item list → no restructuring, direct conversion.
+- More than ~20 items → suggest splitting into several runs rather than processing everything at once.
+- Prose mixed with the list → only actionable items become features; mention the ignored remainder.
 
 ## Phase 1 — Parse the table and clarify
 
@@ -98,6 +117,6 @@ When all rows are `done` or `blocked`, produce a text summary (no widget, simple
 
 ## Reference files
 
-- `references/table-format.md` — Exact table format, full example, parsing rules, bilingual status values.
+- `references/table-format.md` — Exact table format, full example, parsing rules, bilingual status values, raw-list intake rules.
 - `references/clarification-questions.md` — Clarification question checklist by feature type (UI, API, data, infra).
 - `references/superpowers-integration.md` — Precise mapping between each step of this skill and the corresponding Superpowers skill, plus the fallback if Superpowers is not installed.
