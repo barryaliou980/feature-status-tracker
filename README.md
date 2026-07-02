@@ -41,7 +41,7 @@ Le skill est un simple dossier avec un `SKILL.md` — pas de dépendance à inst
 ### Option A — Skill perso, disponible dans tous tes projets
 
 ```bash
-git clone <url-de-ce-repo> ~/.claude/skills/feature-status-tracker
+git clone https://github.com/barryaliou980/feature-status-tracker.git ~/.claude/skills/feature-status-tracker
 ```
 
 ### Option B — Skill limité à un seul projet
@@ -50,7 +50,7 @@ Clone-le directement dans `.claude/skills/` à la racine du repo concerné (Vira
 
 ```bash
 cd /chemin/vers/ton-projet
-git clone <url-de-ce-repo> .claude/skills/feature-status-tracker
+git clone https://github.com/barryaliou980/feature-status-tracker.git .claude/skills/feature-status-tracker
 ```
 
 ### Option C — Copier manuellement (sans git)
