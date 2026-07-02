@@ -1,37 +1,37 @@
-# Checklist de questions de clarification par type de feature
+# Clarification question checklist by feature type
 
-Ne pose que les questions pertinentes pour la feature en cours — cette liste est un menu, pas un script à réciter intégralement. L'objectif de chaque question est d'aboutir à des **critères d'acceptation écrits, testables**, pas juste de "discuter".
+Only ask the questions relevant to the current feature — this list is a menu, not a script to recite in full. The goal of every question is to end up with **written, testable acceptance criteria**, not just to "discuss".
 
-## Questions génériques (presque toujours utiles)
+## Generic questions (almost always useful)
 
-- Quel est le comportement attendu côté utilisateur final, en une phrase ?
-- Y a-t-il un cas limite ou une erreur qu'il faut absolument gérer (ex: donnée manquante, timeout, doublon) ?
-- Cette feature dépend-elle d'une autre feature du tableau qui doit être terminée avant ?
-- Quel est le critère qui permet de dire "c'est fini" (ex: un test précis, un scénario manuel à vérifier) ?
+- What is the expected end-user behavior, in one sentence?
+- Is there an edge case or error that absolutely must be handled (e.g. missing data, timeout, duplicate)?
+- Does this feature depend on another feature in the table that must be finished first?
+- What is the criterion that lets us say "it's done" (e.g. a specific test, a manual scenario to verify)?
 
-## Si la feature touche l'UI/UX
+## If the feature touches UI/UX
 
-- Écran ou composant existant à modifier, ou nouvel écran ?
-- Comportement responsive/mobile à prévoir ou hors scope ?
-- État de chargement / erreur à afficher explicitement ?
+- Existing screen or component to modify, or a new screen?
+- Responsive/mobile behavior to handle, or out of scope?
+- Loading / error states to display explicitly?
 
-## Si la feature touche une API / le backend
+## If the feature touches an API / the backend
 
-- Nouvelle route ou modification d'une route existante ? Quel verbe HTTP et quel payload attendu ?
-- Authentification/permissions requises sur cette route ?
-- Format de réponse attendu (structure JSON) ?
+- New route or modification of an existing route? Which HTTP verb and expected payload?
+- Authentication/permissions required on this route?
+- Expected response format (JSON structure)?
 
-## Si la feature touche les données / la base
+## If the feature touches data / the database
 
-- Migration de schéma nécessaire ? Sur quelle table ?
-- Impact sur des données existantes (migration de données, pas juste de schéma) ?
-- Contraintes d'unicité, index, ou relations à ajouter ?
+- Schema migration needed? On which table?
+- Impact on existing data (data migration, not just schema)?
+- Uniqueness constraints, indexes, or relations to add?
 
-## Si la feature touche l'infra / le multi-tenant
+## If the feature touches infra / multi-tenancy
 
-- Comportement identique pour tous les tenants ou paramétrable par workspace ?
-- Impact sur la routing/domaine custom si applicable ?
+- Same behavior for all tenants, or configurable per workspace?
+- Impact on routing/custom domains if applicable?
 
-## Après les réponses
+## After the answers
 
-Toujours reformuler en 2-4 lignes concises et les écrire dans la colonne `Clarifications` du tableau, sous forme de critères d'acceptation actionnables plutôt que de recopier la conversation verbatim. C'est ce texte-là, et uniquement lui, qui servira de spec pendant la Phase 3 — il doit donc être suffisamment précis pour développer sans redemander à l'utilisateur.
+Always rephrase into 2-4 concise lines and write them into the table's `Clarifications` column, as actionable acceptance criteria rather than a verbatim copy of the conversation. That text, and only that text, will serve as the spec during Phase 3 — so it must be precise enough to develop without asking the user again.

@@ -1,0 +1,13 @@
+{
+  "name": "feature-status-tracker",
+  "displayName": "Feature Status Tracker",
+  "description": "Turns a Markdown feature table into an autonomous dev pipeline: clarify each feature, then develop one branch + one PR per feature until the table is done. Works with English or French tables.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Aliou Barry"
+  },
+  "homepage": "https://github.com/barryaliou980/feature-status-tracker",
+  "repository": "https://github.com/barryaliou980/feature-status-tracker",
+  "license": "MIT",
+  "keywords": ["features", "backlog", "roadmap", "autonomous-development", "tdd", "git-branches", "pull-requests", "superpowers"]
+}

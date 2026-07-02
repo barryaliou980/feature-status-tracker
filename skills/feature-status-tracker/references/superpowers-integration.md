@@ -1,37 +1,37 @@
-# Intégration avec Superpowers (obra/superpowers)
+# Superpowers integration (obra/superpowers)
 
-Ce skill est conçu pour s'exécuter dans Claude Code avec le plugin Superpowers installé. Superpowers fournit des skills spécialisés pour chaque étape technique du développement — ce skill orchestre, Superpowers exécute.
+This skill is designed to run in Claude Code with the Superpowers plugin installed. Superpowers provides specialized skills for each technical step of development — this skill orchestrates, Superpowers executes.
 
-## Vérifier la présence de Superpowers
+## Checking for Superpowers
 
-En début de Phase 0, chercher les skills Superpowers disponibles (par ex. lister les skills accessibles, ou chercher un dossier de plugins contenant leurs noms). Les skills Superpowers pertinents pour ce workflow :
+At the start of Phase 0, look for the available Superpowers skills (e.g. list accessible skills, or search for a plugins directory containing their names). The Superpowers skills relevant to this workflow:
 
 - `using-git-worktrees`
 - `test-driven-development`
 - `requesting-code-review`
 - `finishing-a-development-branch`
-- `brainstorming` (optionnel, voir note plus bas)
+- `brainstorming` (optional, see note below)
 
-## Mapping étape par étape
+## Step-by-step mapping
 
-| Étape de ce skill | Skill Superpowers à invoquer | Ce que ça fait |
+| Step in this skill | Superpowers skill to invoke | What it does |
 |---|---|---|
-| Création de branche (Phase 3, étape 2) | `using-git-worktrees` | Crée un workspace isolé sur une nouvelle branche, lance le setup du projet, vérifie une baseline de tests propre avant de commencer à coder. |
-| Développement (Phase 3, étape 3) | `test-driven-development` | Impose le cycle red-green-refactor : écrire un test qui échoue, code minimal pour le faire passer, refactor, commit. |
-| Auto-relecture avant commit (Phase 3, étape 4) | `requesting-code-review` | Fait relire le travail contre les critères d'acceptation et la qualité du code, avant de considérer la feature terminée. |
-| Clôture de branche + PR (Phase 3, étape 6) | `finishing-a-development-branch` | Vérifie les tests, propose merge / créer une PR / continuer / abandonner. **Toujours choisir l'option "créer une PR" et jamais "merger"** conformément à la consigne de l'utilisateur (PR locale vers la branche principale, pas de merge automatique). |
+| Branch creation (Phase 3, step 2) | `using-git-worktrees` | Creates an isolated workspace on a new branch, runs project setup, verifies a clean test baseline before starting to code. |
+| Development (Phase 3, step 3) | `test-driven-development` | Enforces the red-green-refactor cycle: write a failing test, minimal code to make it pass, refactor. |
+| Self-review before commit (Phase 3, step 4) | `requesting-code-review` | Has the work reviewed against the acceptance criteria and code quality, before considering the feature done. |
+| Branch close-out + PR (Phase 3, step 6) | `finishing-a-development-branch` | Verifies tests, offers merge / create a PR / continue / abandon. **Always choose the "create a PR" option and never "merge"**, per the user's rule (local PR against the main branch, no automatic merge). |
 
-### Note sur `brainstorming`
+### Note on `brainstorming`
 
-Superpowers inclut un skill `brainstorming` qui affine une idée floue par des questions avant tout code — c'est conceptuellement proche de la Phase 1 de ce skill-ci. Ne pas invoquer les deux en double sur la même feature : la Phase 1 de `feature-status-tracker` remplace `brainstorming` pour ce workflow précis, puisque la clarification part déjà d'un tableau structuré. Si `brainstorming` s'active spontanément pendant la Phase 3 (ex: ambiguïté redécouverte en cours de dev), le laisser faire ponctuellement plutôt que de le bloquer — mais ça doit rester l'exception, pas la norme, sinon la boucle autonome perd son autonomie.
+Superpowers includes a `brainstorming` skill that refines a vague idea through questions before any code — conceptually close to Phase 1 of this skill. Do not invoke both on the same feature: Phase 1 of `feature-status-tracker` replaces `brainstorming` for this specific workflow, since clarification already starts from a structured table. If `brainstorming` activates spontaneously during Phase 3 (e.g. an ambiguity rediscovered mid-development), let it run that one time rather than blocking it — but it must remain the exception, not the norm, otherwise the autonomous loop loses its autonomy.
 
-## Fallback si Superpowers n'est pas installé
+## Fallback if Superpowers is not installed
 
-Ne jamais bloquer le workflow si Superpowers est absent — appliquer manuellement l'équivalent :
+Never block the workflow if Superpowers is absent — apply the equivalent manually:
 
-1. **Branche** : `git checkout -b feature/<slug>` depuis la branche principale locale à jour (`git pull` d'abord si un remote existe).
-2. **TDD manuel** : écrire un test qui échoue, coder le minimum pour le faire passer, refactorer, puis passer à l'acceptance criteria suivant.
-3. **Auto-relecture** : avant de commit, relire son propre diff (`git diff`) contre la colonne `Clarifications` et signaler explicitement si un point n'est pas couvert plutôt que de commit silencieusement.
-4. **Clôture** : `git push -u origin feature/<slug>`, puis `gh pr create --base <branche-principale> --fill` si le CLI `gh` est disponible et authentifié. Si `gh` n'est pas disponible, ne pas essayer de deviner une URL — indiquer clairement dans le rapport final que la branche est poussée mais que la PR doit être ouverte manuellement, avec la commande exacte à lancer.
+1. **Branch**: `git checkout -b feature/<slug>` from the up-to-date local main branch (`git pull` first if a remote exists).
+2. **Manual TDD**: write a failing test, code the minimum to make it pass, refactor, then move to the next acceptance criterion.
+3. **Self-review**: before committing, re-read your own diff (`git diff`) against the `Clarifications` column and explicitly flag any uncovered point rather than committing silently.
+4. **Close-out**: `git push -u origin feature/<slug>`, then `gh pr create --base <main-branch> --fill` if the `gh` CLI is available and authenticated. If `gh` is not available, do not try to guess a URL — clearly state in the final report that the branch is pushed but the PR must be opened manually, with the exact command to run.
 
-Dans les deux cas (avec ou sans Superpowers), la règle métier de l'utilisateur reste fixe : **jamais de merge automatique**, toujours une PR ouverte contre la branche principale locale, en attente de revue humaine.
+In both cases (with or without Superpowers), the user's business rule stays fixed: **never merge automatically**, always an open PR against the local main branch, awaiting human review.

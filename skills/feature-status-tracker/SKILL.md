@@ -1,108 +1,103 @@
 ---
 name: feature-status-tracker
 description: >
-  Pilote un cycle complet de dev à partir d'un tableau Markdown de features (| Feature |
-  Description | Statut | ...). Utilise ce skill dès qu'un tableau de fonctionnalités à
-  développer est fourni/référencé, ou qu'on parle de "feature status", "backlog", "roadmap
-  à implémenter", "clarifier puis développer seul chaque feature". Deux phases obligatoires —
-  1) clarification interactive feature par feature, aucun code avant que TOUT le tableau soit
-  clarifié ; 2) exécution autonome : une feature à la fois, branche Git dédiée, dev, tests,
-  commit, PR locale vers la branche principale, statut "done", puis enchaîne seul sur la
-  suivante jusqu'à la fin du tableau. S'appuie sur le framework Superpowers (obra/superpowers)
-  pour chaque étape technique (git worktrees, TDD, revue de code, clôture de branche) —
-  vérifie sa présence avant la phase 2. Se déclenche même sans le mot "skill" : coller un
-  tableau de features avec une colonne statut suffit.
+  Use when the user provides or references a Markdown table of features to build
+  (| Feature | Description | Status | columns), mentions a feature backlog, a
+  roadmap to implement, "feature status", or asks to clarify features and then
+  develop them autonomously one by one. Works with English or French tables
+  (Status/Statut, todo/à faire). Triggers even without the word "skill" —
+  pasting a feature table with a status column is enough.
 ---
 
 # Feature Status Tracker
 
-Pilote de bout en bout : tableau de features → clarification → développement autonome branche par branche, en s'appuyant sur les skills Superpowers pour chaque étape technique.
+End-to-end pilot: feature table → clarification → autonomous development branch by branch, relying on Superpowers skills for each technical step.
 
-## Vue d'ensemble du workflow
+## Workflow overview
 
 ```
-Phase 0 : Vérification des prérequis (Superpowers, repo git propre)
-Phase 1 : Parsing du tableau + Clarification (interactif, feature par feature)
-Phase 2 : Portail de confirmation ("GO" de l'utilisateur)
-Phase 3 : Boucle autonome (1 feature = 1 branche = 1 PR = 1 ligne "done")
-Phase 4 : Rapport final
+Phase 0: Prerequisites check (Superpowers, clean git repo)
+Phase 1: Table parsing + Clarification (interactive, feature by feature)
+Phase 2: Confirmation gate (explicit "GO" from the user)
+Phase 3: Autonomous loop (1 feature = 1 branch = 1 PR = 1 row marked "done")
+Phase 4: Final report
 ```
 
-**Règle d'or : ne jamais commencer à coder tant que toutes les features ne sont pas clarifiées.** La clarification et le développement sont deux phases strictement séparées.
+**Golden rule: never start coding until ALL features are clarified.** Clarification and development are two strictly separate phases.
 
 ---
 
-## Phase 0 — Prérequis
+## Phase 0 — Prerequisites
 
-1. Vérifier qu'on est dans un dépôt git propre : `git status`. Si des changements non commités traînent, le signaler à l'utilisateur avant de continuer.
-2. Vérifier la présence de Superpowers : chercher `.claude/plugins` ou un dossier de skills contenant `using-git-worktrees`, `test-driven-development`, `requesting-code-review`, `finishing-a-development-branch` (via la commande de recherche de skills disponible, ou `find` sur `~/.claude`).
-   - **Si Superpowers est présent** : ce skill délègue explicitement à ces skills Superpowers pendant la Phase 3 (voir `references/superpowers-integration.md`). Ne pas réimplémenter en parallèle une logique de TDD ou de gestion de worktree — invoquer le skill Superpowers correspondant.
-   - **Si Superpowers est absent** : le signaler une fois à l'utilisateur ("Superpowers n'est pas détecté, je vais utiliser un workflow git/TDD manuel équivalent") puis continuer avec le fallback décrit dans `references/superpowers-integration.md`. Ne pas bloquer le workflow pour autant.
-3. Identifier ou demander le chemin du fichier tableau (ex: `FEATURES.md`, `roadmap.md`) s'il n'est pas déjà fourni dans la conversation.
+1. Check that we are in a clean git repository: `git status`. If uncommitted changes are lying around, flag them to the user before continuing.
+2. Check for Superpowers: look for `.claude/plugins` or a skills directory containing `using-git-worktrees`, `test-driven-development`, `requesting-code-review`, `finishing-a-development-branch` (via the available skill discovery mechanism, or `find` on `~/.claude`).
+   - **If Superpowers is present**: this skill explicitly delegates to those Superpowers skills during Phase 3 (see `references/superpowers-integration.md`). Do not reimplement TDD or worktree management logic in parallel — invoke the corresponding Superpowers skill.
+   - **If Superpowers is absent**: mention it once to the user ("Superpowers is not detected, I'll use an equivalent manual git/TDD workflow") then continue with the fallback described in `references/superpowers-integration.md`. Do not block the workflow because of it.
+3. Identify or ask for the path of the table file (e.g. `FEATURES.md`, `roadmap.md`) if it wasn't already provided in the conversation.
 
-## Phase 1 — Parser le tableau et clarifier
+## Phase 1 — Parse the table and clarify
 
-### Format attendu du tableau
+### Expected table format
 
-Voir `references/table-format.md` pour le détail complet. En résumé, colonnes minimales :
+See `references/table-format.md` for full details, including the bilingual (English/French) status values. In short, minimal columns:
 
-| Feature | Description | Statut | Clarifications | Branche | PR |
+| Feature | Description | Status | Clarifications | Branch | PR |
 |---|---|---|---|---|---|
 
-- Si le tableau fourni n'a pas les colonnes `Clarifications`, `Branche`, `PR`, les ajouter toi-même en éditant le fichier (elles servent de mémoire persistante entre les sessions).
-- Statuts possibles : `à faire`, `clarifiée`, `en cours`, `done`, `bloquée`.
+- If the provided table lacks the `Clarifications`, `Branch`, `PR` columns, add them yourself by editing the file (they serve as persistent memory across sessions).
+- Possible statuses: `todo`, `clarified`, `in progress`, `done`, `blocked` — French equivalents (`à faire`, `clarifiée`, `en cours`, `bloquée`) are accepted too. **Detect which language the user's table uses and keep writing statuses in that same language.**
 
-### Boucle de clarification (une feature à la fois)
+### Clarification loop (one feature at a time)
 
-Pour chaque ligne dont le statut est `à faire` (pas encore clarifiée) :
+For each row whose status is `todo` (not yet clarified):
 
-1. Annoncer brièvement quelle feature tu traites (nom + description existante).
-2. Poser des questions ciblées pour lever les ambiguïtés — voir la checklist dans `references/clarification-questions.md`. Ne pas tout demander mécaniquement : ne poser que les questions pertinentes pour CETTE feature (une feature UI n'a pas les mêmes questions qu'une feature API interne).
-3. Utiliser le format de questions à choix (via l'outil de questions à l'utilisateur si disponible dans l'environnement, sinon des questions numérotées claires) pour aller vite — mais rester ouvert à des réponses en texte libre.
-4. Une fois les réponses obtenues, résumer en 2-4 lignes les critères d'acceptation retenus et les écrire dans la colonne `Clarifications` de la ligne correspondante (fichier Markdown mis à jour directement).
-5. Passer le statut de la ligne à `clarifiée`.
-6. Passer à la feature suivante **sans t'arrêter pour valider** — seule la fin de la clarification de TOUTES les features déclenche un point d'arrêt (Phase 2).
+1. Briefly announce which feature you are handling (name + existing description).
+2. Ask targeted questions to remove ambiguities — see the checklist in `references/clarification-questions.md`. Do not ask everything mechanically: only ask the questions relevant to THIS feature (a UI feature does not get the same questions as an internal API feature).
+3. Use the multiple-choice question format (via the user-question tool if available in the environment, otherwise clear numbered questions) to move fast — but stay open to free-text answers.
+4. Once the answers are in, summarize the retained acceptance criteria in 2-4 lines and write them into the `Clarifications` column of the corresponding row (Markdown file updated directly).
+5. Set the row's status to `clarified`.
+6. Move on to the next feature **without stopping for validation** — only the completion of clarification for ALL features triggers a stopping point (Phase 2).
 
-Si une feature est déjà marquée `done` ou `bloquée` en entrant dans le skill, la sauter (ne pas re-clarifier, ne pas re-développer).
+If a feature is already marked `done` or `blocked` when entering the skill, skip it (do not re-clarify, do not re-develop).
 
-## Phase 2 — Portail de confirmation
+## Phase 2 — Confirmation gate
 
-Une fois toutes les lignes passées à `clarifiée` (ou `done`/`bloquée` préexistantes) :
+Once all rows are `clarified` (or pre-existing `done`/`blocked`):
 
-1. Afficher un résumé compact du tableau final (feature → résumé des critères d'acceptation en une ligne).
-2. Demander explicitement confirmation avant de lancer le développement autonome, par exemple : *"Toutes les features sont clarifiées. Je peux démarrer le développement autonome (1 branche par feature, PR locale à la fin de chacune). Je te laisse travailler seul jusqu'à la fin du tableau — confirme pour que je démarre."*
-3. Ne jamais démarrer la Phase 3 sans ce feu vert explicite.
+1. Display a compact summary of the final table (feature → one-line summary of acceptance criteria).
+2. Explicitly ask for confirmation before launching autonomous development, for example: *"All features are clarified. I can start autonomous development (1 branch per feature, local PR at the end of each). I'll work alone until the table is complete — confirm to let me start."*
+3. Never start Phase 3 without this explicit green light.
 
-## Phase 3 — Boucle de développement autonome
+## Phase 3 — Autonomous development loop
 
-Une fois le feu vert donné, **ne plus repasser par l'utilisateur entre les features** (sauf blocage réel — voir gestion des erreurs). Pour chaque feature dans l'ordre du tableau dont le statut est `clarifiée` :
+Once the green light is given, **do not go back to the user between features** (except for a real blocker — see error handling). For each feature in table order whose status is `clarified`:
 
-1. **Marquer** la ligne `en cours` dans le fichier tableau.
-2. **Créer la branche** dédiée à cette feature. Nom de branche : `feature/<slug-de-la-feature>` (kebab-case, sans accents). Utiliser le skill Superpowers `using-git-worktrees` s'il est disponible pour isoler le workspace ; sinon `git checkout -b feature/<slug>` depuis la branche principale locale à jour.
-3. **Développer** en t'appuyant sur les critères d'acceptation de la colonne `Clarifications`. Utiliser le skill Superpowers `test-driven-development` (cycle red-green-refactor) s'il est disponible ; sinon appliquer manuellement : test qui échoue → code minimal → test qui passe → refactor.
-4. **Faire relire ton propre travail** avec le skill Superpowers `requesting-code-review` s'il est disponible avant de commit, pour attraper les problèmes évidents.
-5. **Commit** avec un message conventionnel (`feat: <résumé de la feature>`, corps optionnel listant les critères d'acceptation couverts).
-6. **Clôturer la branche** : utiliser le skill Superpowers `finishing-a-development-branch` s'il est disponible pour ouvrir la PR ; sinon `git push -u origin feature/<slug>` puis `gh pr create --base <branche-principale-locale> --fill` (si `gh` est installé) ou, à défaut, indiquer clairement dans le rapport que la branche est prête et poussée mais qu'il n'a pas pu ouvrir la PR automatiquement. **Ne jamais merger automatiquement** — la PR reste ouverte pour revue humaine.
-7. **Mettre à jour le tableau** : statut → `done`, remplir les colonnes `Branche` et `PR` (lien ou identifiant).
-8. **Revenir à la branche principale locale** avant de passer à la feature suivante (`git checkout <branche-principale>`).
-9. Passer automatiquement à la feature suivante avec statut `clarifiée`, sans attendre de confirmation.
+1. **Mark** the row `in progress` in the table file.
+2. **Create the branch** dedicated to this feature. Branch name: `feature/<feature-slug>` (kebab-case, no accents). Use the Superpowers skill `using-git-worktrees` if available to isolate the workspace; otherwise `git checkout -b feature/<slug>` from the up-to-date local main branch.
+3. **Develop** based on the acceptance criteria in the `Clarifications` column. Use the Superpowers skill `test-driven-development` (red-green-refactor cycle) if available; otherwise apply manually: failing test → minimal code → passing test → refactor.
+4. **Have your own work reviewed** with the Superpowers skill `requesting-code-review` if available, before committing, to catch obvious problems.
+5. **Commit** with a conventional message (`feat: <feature summary>`, optional body listing the covered acceptance criteria).
+6. **Close out the branch**: use the Superpowers skill `finishing-a-development-branch` if available to open the PR; otherwise `git push -u origin feature/<slug>` then `gh pr create --base <local-main-branch> --fill` (if `gh` is installed) or, failing that, clearly state in the report that the branch is ready and pushed but the PR could not be opened automatically. **Never merge automatically** — the PR stays open for human review.
+7. **Update the table**: status → `done`, fill in the `Branch` and `PR` columns (link or identifier).
+8. **Return to the local main branch** before moving to the next feature (`git checkout <main-branch>`).
+9. Automatically move on to the next feature with status `clarified`, without waiting for confirmation.
 
-### Gestion des erreurs / blocages
+### Error / blocker handling
 
-- Si une feature ne peut pas être terminée (dépendance manquante, ambiguïté technique découverte en cours de dev, tests impossibles à faire passer après plusieurs tentatives raisonnables) : marquer la ligne `bloquée`, écrire la raison dans `Clarifications`, committer le travail partiel sur sa branche dédiée si pertinent, puis **continuer avec la feature suivante** plutôt que d'arrêter tout le run.
-- Ne jamais laisser le dépôt sur une branche de feature à la fin d'un cycle — toujours revenir à la branche principale locale entre deux features.
+- If a feature cannot be completed (missing dependency, technical ambiguity discovered too late, tests impossible to pass after a reasonable number of attempts): mark the row `blocked`, write the reason in `Clarifications`, commit the partial work on its dedicated branch if relevant, then **continue with the next feature** rather than stopping the whole run.
+- Never leave the repository on a feature branch at the end of a cycle — always return to the local main branch between two features.
 
-## Phase 4 — Rapport final
+## Phase 4 — Final report
 
-Quand toutes les lignes sont `done` ou `bloquée`, produire un résumé texte (pas de widget, format structuré simple) :
-- Nombre de features terminées / bloquées.
-- Liste des branches créées et PR ouvertes (avec lien si disponible).
-- Liste des features bloquées avec la raison, pour que l'utilisateur tranche.
+When all rows are `done` or `blocked`, produce a text summary (no widget, simple structured format):
+- Number of features completed / blocked.
+- List of branches created and PRs opened (with links if available).
+- List of blocked features with the reason, so the user can decide.
 
 ---
 
-## Fichiers de référence
+## Reference files
 
-- `references/table-format.md` — Format exact du tableau, exemple complet, règles de parsing.
-- `references/clarification-questions.md` — Checklist de questions par type de feature (UI, API, données, infra).
-- `references/superpowers-integration.md` — Mapping précis entre chaque étape de ce skill et le skill Superpowers correspondant, + fallback si Superpowers n'est pas installé.
+- `references/table-format.md` — Exact table format, full example, parsing rules, bilingual status values.
+- `references/clarification-questions.md` — Clarification question checklist by feature type (UI, API, data, infra).
+- `references/superpowers-integration.md` — Precise mapping between each step of this skill and the corresponding Superpowers skill, plus the fallback if Superpowers is not installed.
