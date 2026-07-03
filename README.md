@@ -69,7 +69,7 @@ Tables in **English or French** both work (`Status`/`Statut`, `todo`/`à faire`,
 Inside Claude Code:
 
 ```
-/plugin marketplace add barryaliou980/feature-status-tracker
+/plugin marketplace add barryaliou980/aliou-skills
 /plugin install feature-status-tracker@aliou-skills
 ```
 
@@ -203,7 +203,7 @@ Les tableaux en **français ou en anglais** fonctionnent tous les deux (`Statut`
 **Option A — plugin (recommandé, 2 commandes) :** dans Claude Code :
 
 ```
-/plugin marketplace add barryaliou980/feature-status-tracker
+/plugin marketplace add barryaliou980/aliou-skills
 /plugin install feature-status-tracker@aliou-skills
 ```
 
