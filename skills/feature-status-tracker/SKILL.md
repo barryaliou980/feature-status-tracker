@@ -20,8 +20,8 @@ End-to-end pilot: feature table (or raw feature list) → clarification → auto
 Phase 0:   Prerequisites check (Superpowers, clean git repo)
 Phase 0.5: Intake — only if no table exists yet: raw list → proposed table → user OK → FEATURES.md
 Phase 1:   Table parsing + Clarification (interactive, feature by feature)
-Phase 2:   Confirmation gate (explicit "GO" from the user)
-Phase 3:   Autonomous loop (1 feature = 1 branch = 1 PR = 1 row marked "done")
+Phase 2:   Confirmation gate (branch integration mode + explicit "GO" from the user)
+Phase 3:   Autonomous loop (1 feature = 1 branch = 1 close-out per the chosen mode = 1 row marked "done")
 Phase 4:   Final report
 ```
 
@@ -84,8 +84,13 @@ If a feature is already marked `done` or `blocked` when entering the skill, skip
 Once all rows are `clarified` (or pre-existing `done`/`blocked`):
 
 1. Display a compact summary of the final table (feature → one-line summary of acceptance criteria).
-2. Explicitly ask for confirmation before launching autonomous development, for example: *"All features are clarified. I can start autonomous development (1 branch per feature, local PR at the end of each). I'll work alone until the table is complete — confirm to let me start."*
-3. Never start Phase 3 without this explicit green light.
+2. **Ask how each finished branch should be integrated** (multiple-choice question, one answer for the whole run):
+   - **Pull Request** — push each branch and open a PR against the main branch; no merge, human review.
+   - **Local merge** — merge each branch into the local main branch as soon as its feature is done.
+   - **Leave branches as-is** — commit the work on each branch but neither push/PR nor merge; the user integrates later.
+   Record the answer: it applies to every feature in Phase 3.
+3. Explicitly ask for confirmation before launching autonomous development, for example: *"All features are clarified and the integration mode is set. I can start autonomous development (1 branch per feature, closed out per the chosen mode). I'll work alone until the table is complete — confirm to let me start."*
+4. Never start Phase 3 without this explicit green light.
 
 ## Phase 3 — Autonomous development loop
 
@@ -96,8 +101,12 @@ Once the green light is given, **do not go back to the user between features** (
 3. **Develop** based on the acceptance criteria in the `Clarifications` column. Use the Superpowers skill `test-driven-development` (red-green-refactor cycle) if available; otherwise apply manually: failing test → minimal code → passing test → refactor.
 4. **Have your own work reviewed** with the Superpowers skill `requesting-code-review` if available, before committing, to catch obvious problems.
 5. **Commit** with a conventional message (`feat: <feature summary>`, optional body listing the covered acceptance criteria).
-6. **Close out the branch**: use the Superpowers skill `finishing-a-development-branch` if available to open the PR; otherwise `git push -u origin feature/<slug>` then `gh pr create --base <local-main-branch> --fill` (if `gh` is installed) or, failing that, clearly state in the report that the branch is ready and pushed but the PR could not be opened automatically. **Never merge automatically** — the PR stays open for human review.
-7. **Update the table**: status → `done`, fill in the `Branch` and `PR` columns (link or identifier).
+6. **Close out the branch** according to the integration mode chosen in Phase 2:
+   - **Pull Request**: use the Superpowers skill `finishing-a-development-branch` if available to open the PR; otherwise `git push -u origin feature/<slug>` then `gh pr create --base <local-main-branch> --fill` (if `gh` is installed) or, failing that, clearly state in the report that the branch is ready and pushed but the PR could not be opened automatically. The PR stays open for human review — do not merge.
+   - **Local merge**: return to the local main branch and `git merge feature/<slug>`. If the merge conflicts, mark the feature `blocked` with the reason in `Clarifications` and leave the branch unmerged.
+   - **Leave branches as-is**: nothing beyond the commit — no push, no PR, no merge.
+   **Never merge unless the user chose "local merge" in Phase 2.**
+7. **Update the table**: status → `done`, fill in the `Branch` column, and in `PR` put the link/identifier (PR mode), `merged` (local merge), or `—` (branches left as-is).
 8. **Return to the local main branch** before moving to the next feature (`git checkout <main-branch>`).
 9. Automatically move on to the next feature with status `clarified`, without waiting for confirmation.
 
@@ -110,7 +119,7 @@ Once the green light is given, **do not go back to the user between features** (
 
 When all rows are `done` or `blocked`, produce a text summary (no widget, simple structured format):
 - Number of features completed / blocked.
-- List of branches created and PRs opened (with links if available).
+- List of branches created and, depending on the integration mode: PRs opened (with links if available), merges performed, or branches left for the user to merge.
 - List of blocked features with the reason, so the user can decide.
 
 ---

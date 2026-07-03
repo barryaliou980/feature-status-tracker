@@ -46,9 +46,9 @@ You give Claude a Markdown file like:
 The skill then runs through 4 phases, in this strict order:
 
 1. **Clarification** — Claude walks through every `todo` row and asks you targeted questions (scope, edge cases, dependencies, definition of "done"). Answers are written directly into the file, in a `Clarifications` column. **No code is written during this phase.**
-2. **Confirmation gate** — once the whole table is clarified, Claude gives you a summary and waits for your explicit green light before writing any code.
-3. **Autonomous development** — for each feature, in table order: create a `feature/<slug>` branch, develop (TDD if Superpowers is there), self-review, commit, push, **local Pull Request against your main branch (never an automatic merge)**, then update the status to `done` in the table. Claude moves on to the next feature by itself, without coming back to you.
-4. **Final report** — summary of the branches/PRs created, plus the list of blocked features (if any) with the reason, so you can decide.
+2. **Confirmation gate** — once the whole table is clarified, Claude gives you a summary, asks **how to integrate each finished branch** (open a Pull Request, merge locally into your main branch, or leave the branches for you to merge later), then waits for your explicit green light before writing any code.
+3. **Autonomous development** — for each feature, in table order: create a `feature/<slug>` branch, develop (TDD if Superpowers is there), self-review, commit, then close out the branch **per the integration mode you chose** (PR, local merge, or branch left as-is — never a merge you didn't ask for), and update the status to `done` in the table. Claude moves on to the next feature by itself, without coming back to you.
+4. **Final report** — summary of the branches created and, per the chosen mode, the PRs opened or merges performed, plus the list of blocked features (if any) with the reason, so you can decide.
 
 If a feature gets stuck along the way (missing dependency, technical ambiguity discovered too late...), it is marked `blocked` with the reason, and Claude continues with the next one instead of stopping the whole run.
 
@@ -56,7 +56,7 @@ Tables in **English or French** both work (`Status`/`Statut`, `todo`/`à faire`,
 
 ### What this skill does NOT do
 
-- It never automatically merges a branch into the main branch — always an open PR, awaiting your review.
+- It never merges a branch into the main branch unless you picked the "local merge" mode at the confirmation gate — otherwise the work waits on its branch (open PR or local branch) for your review.
 - It never codes before the clarification of **every** feature in the table is complete.
 - It never invents acceptance criteria: if an answer is missing to develop correctly, it asks you rather than guessing.
 
@@ -118,15 +118,15 @@ Claude asks questions tailored to each feature (UI, API, data, infra...). Answer
 
 ### 4. Give the green light
 
-Once every feature is clarified, Claude shows you a summary and waits for an explicit confirmation, along the lines of:
+Once every feature is clarified, Claude shows you a summary, asks how to integrate the finished branches (PR, local merge, or leave them for you to merge later), and waits for an explicit confirmation, along the lines of:
 
-> All features are clarified. I can start autonomous development — confirm to let me begin.
+> All features are clarified and the integration mode is set. I can start autonomous development — confirm to let me begin.
 
 Just reply "go", or equivalent.
 
 ### 5. Let it work
 
-Claude chains on its own: branch → dev → tests → commit → PR → `done` → next feature, until the end of the table. You can check progress anytime by looking at `FEATURES.md` (the `Status` column) or your branches/PRs on GitHub.
+Claude chains on its own: branch → dev → tests → commit → close-out (PR, local merge, or branch left as-is) → `done` → next feature, until the end of the table. You can check progress anytime by looking at `FEATURES.md` (the `Status` column) or your branches/PRs on GitHub.
 
 ### 6. Resume an interrupted session
 
@@ -184,9 +184,9 @@ Tu donnes à Claude un fichier Markdown du genre :
 Le skill se déroule ensuite en 4 phases, dans cet ordre strict :
 
 1. **Clarification** — Claude parcourt chaque ligne `à faire` et te pose des questions ciblées (scope, cas limites, dépendances, critère de "c'est fini"). Les réponses sont écrites directement dans le fichier, dans une colonne `Clarifications`. **Aucune ligne de code n'est écrite pendant cette phase.**
-2. **Portail de confirmation** — une fois tout le tableau clarifié, Claude te fait un résumé et attend ton feu vert explicite avant de commencer à coder.
-3. **Développement autonome** — pour chaque feature, dans l'ordre du tableau : création d'une branche `feature/<slug>`, développement (TDD si Superpowers est là), auto-relecture, commit, push, **Pull Request locale vers ta branche principale (jamais de merge automatique)**, puis mise à jour du statut à `done` dans le tableau. Claude enchaîne seul sur la feature suivante sans repasser par toi.
-4. **Rapport final** — résumé des branches/PR créées, et liste des features bloquées (le cas échéant) avec la raison, pour que tu tranches.
+2. **Portail de confirmation** — une fois tout le tableau clarifié, Claude te fait un résumé, te demande **comment intégrer chaque branche terminée** (ouvrir une Pull Request, merger localement dans ta branche principale, ou laisser les branches telles quelles pour que tu merges plus tard), puis attend ton feu vert explicite avant de commencer à coder.
+3. **Développement autonome** — pour chaque feature, dans l'ordre du tableau : création d'une branche `feature/<slug>`, développement (TDD si Superpowers est là), auto-relecture, commit, puis clôture de la branche **selon le mode d'intégration choisi** (PR, merge local, ou branche laissée telle quelle — jamais de merge que tu n'as pas demandé), et mise à jour du statut à `done` dans le tableau. Claude enchaîne seul sur la feature suivante sans repasser par toi.
+4. **Rapport final** — résumé des branches créées et, selon le mode choisi, des PR ouvertes ou des merges effectués, et liste des features bloquées (le cas échéant) avec la raison, pour que tu tranches.
 
 Si une feature bloque en cours de route, elle est marquée `bloquée` avec la raison, et Claude continue sur la suivante plutôt que d'arrêter tout le run.
 
@@ -194,7 +194,7 @@ Les tableaux en **français ou en anglais** fonctionnent tous les deux (`Statut`
 
 ### Ce que ce skill ne fait pas
 
-- Il ne merge jamais automatiquement une branche dans la branche principale — c'est toujours une PR ouverte, en attente de ta revue.
+- Il ne merge jamais une branche dans la branche principale sauf si tu as choisi le mode "merge local" au portail de confirmation — sinon le travail attend sur sa branche (PR ouverte ou branche locale) pour ta revue.
 - Il ne code jamais avant que la clarification de **toutes** les features du tableau soit terminée.
 - Il n'invente pas de critères d'acceptation : si une réponse manque, il te la demande plutôt que de supposer.
 
@@ -216,8 +216,8 @@ Recommandé mais optionnel : installe aussi [Superpowers](https://github.com/obr
 1. Crée un fichier `FEATURES.md` avec au minimum les colonnes `Feature`, `Description`, `Statut` — ou colle simplement une liste à puces, le skill construira le tableau pour toi.
 2. Dans Claude Code, dis simplement : *« Voici mon tableau de features dans FEATURES.md, peux-tu clarifier chaque ligne avec moi puis les développer une par une ? »*
 3. Réponds aux questions de clarification.
-4. Donne le feu vert ("go", "vas-y"...).
-5. Laisse Claude enchaîner : branche → dev → tests → commit → PR → `done` → feature suivante.
+4. Choisis le mode d'intégration des branches (PR, merge local, ou branches laissées telles quelles), puis donne le feu vert ("go", "vas-y"...).
+5. Laisse Claude enchaîner : branche → dev → tests → commit → clôture selon le mode choisi → `done` → feature suivante.
 6. Session interrompue ? Relance le même prompt plus tard : le fichier tableau est la source de vérité, seules les features non terminées reprennent.
 
 ## Licence

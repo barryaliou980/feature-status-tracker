@@ -19,7 +19,7 @@ At the start of Phase 0, look for the available Superpowers skills (e.g. list ac
 | Branch creation (Phase 3, step 2) | `using-git-worktrees` | Creates an isolated workspace on a new branch, runs project setup, verifies a clean test baseline before starting to code. |
 | Development (Phase 3, step 3) | `test-driven-development` | Enforces the red-green-refactor cycle: write a failing test, minimal code to make it pass, refactor. |
 | Self-review before commit (Phase 3, step 4) | `requesting-code-review` | Has the work reviewed against the acceptance criteria and code quality, before considering the feature done. |
-| Branch close-out + PR (Phase 3, step 6) | `finishing-a-development-branch` | Verifies tests, offers merge / create a PR / continue / abandon. **Always choose the "create a PR" option and never "merge"**, per the user's rule (local PR against the main branch, no automatic merge). |
+| Branch close-out (Phase 3, step 6) | `finishing-a-development-branch` | Verifies tests, offers merge / create a PR / continue / abandon. **Pick the option matching the integration mode the user chose in Phase 2** (PR, local merge, or leave the branch as-is) — never merge unless "local merge" was chosen. Do not re-ask per feature: the Phase 2 answer applies to the whole run. |
 
 ### Note on `brainstorming`
 
@@ -32,6 +32,9 @@ Never block the workflow if Superpowers is absent — apply the equivalent manua
 1. **Branch**: `git checkout -b feature/<slug>` from the up-to-date local main branch (`git pull` first if a remote exists).
 2. **Manual TDD**: write a failing test, code the minimum to make it pass, refactor, then move to the next acceptance criterion.
 3. **Self-review**: before committing, re-read your own diff (`git diff`) against the `Clarifications` column and explicitly flag any uncovered point rather than committing silently.
-4. **Close-out**: `git push -u origin feature/<slug>`, then `gh pr create --base <main-branch> --fill` if the `gh` CLI is available and authenticated. If `gh` is not available, do not try to guess a URL — clearly state in the final report that the branch is pushed but the PR must be opened manually, with the exact command to run.
+4. **Close-out**, per the integration mode chosen in Phase 2:
+   - *Pull Request*: `git push -u origin feature/<slug>`, then `gh pr create --base <main-branch> --fill` if the `gh` CLI is available and authenticated. If `gh` is not available, do not try to guess a URL — clearly state in the final report that the branch is pushed but the PR must be opened manually, with the exact command to run.
+   - *Local merge*: `git checkout <main-branch> && git merge feature/<slug>`; on conflict, mark the feature `blocked` and leave the branch unmerged.
+   - *Leave branches as-is*: stop after the commit; list the branches in the final report.
 
-In both cases (with or without Superpowers), the user's business rule stays fixed: **never merge automatically**, always an open PR against the local main branch, awaiting human review.
+In both cases (with or without Superpowers), the integration rule is fixed by the user's Phase 2 answer, given once before the GO: **merge only if they chose "local merge"** — otherwise the work waits on its branch (open PR or local branch) for human review.

@@ -55,7 +55,7 @@ The skill accepts both English and French status values. **Detect which language
 | `todo` | `à faire` | Not yet clarified, not yet developed. |
 | `clarified` | `clarifiée` | Questions answered, acceptance criteria written, ready for Phase 3. |
 | `in progress` | `en cours` | Being developed (transient state during Phase 3; should never remain at the end of a run except after an interruption). |
-| `done` | `done` / `terminée` | Branch created, code written and tested, PR opened. |
+| `done` | `done` / `terminée` | Branch created, code written and tested, branch closed out per the integration mode chosen in Phase 2 (PR opened, merged locally, or left as-is). |
 | `blocked` | `bloquée` | Development hit a real obstacle; see the `Clarifications` column for the reason. |
 
 Matching is case-insensitive and tolerant of close variants (`to do`, `TODO`, `in-progress`, `WIP`, `fait`, `terminé`). When rewriting a status, use the canonical spelling of the table's language from the table above.
