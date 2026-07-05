@@ -139,8 +139,7 @@ The table file is the persistent source of truth. If you close Claude Code mid-r
 ```
 feature-status-tracker/
 ├── .claude-plugin/
-│   ├── plugin.json                       # Plugin manifest
-│   └── marketplace.json                  # Marketplace catalog (aliou-skills)
+│   └── plugin.json                       # Plugin manifest (marketplace catalog lives in the aliou-skills repo)
 ├── skills/
 │   └── feature-status-tracker/
 │       ├── SKILL.md                      # Main instructions (the 4 phases)
